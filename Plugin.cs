@@ -4,7 +4,8 @@ using UnityEngine;
 using Utilla;
 using InfoWatch.Scripts;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using DevGorillaLib.Utils;
+using DevGorillaLib.Objects;
 
 namespace InfoWatch
 {
@@ -13,41 +14,37 @@ namespace InfoWatch
     public class Plugin : BaseUnityPlugin
     {
         TimeSpan playTime;
-        bool InHunt;
+        bool WatchActive;
+        DummyWatch watch;
 
         void Start()
         {
             Utilla.Events.RoomJoined += RoomJoined;
-            Utilla.Events.RoomLeft += RoomLeft;
         }
 
-        void RoomJoined(object sender, Events.RoomJoinedArgs e)
+        async void RoomJoined(object sender, Events.RoomJoinedArgs e)
         {
-            if (e.Gamemode.Contains("HUNT") && WatchManagement.WatchActive)
+            if (e.Gamemode.Contains("HUNT") && WatchActive)
             {
-                InHunt = true;
-                WatchManagement.RemoveWatch();
+                WatchUtils.RemoveDummyWatch(GorillaTagger.Instance.offlineVRRig);
+                WatchActive = false;
             }
-            else
+            else if (!WatchActive)
             {
-                InHunt = false;
-                WatchManagement.InitWatch();
+                watch = await WatchUtils.CreateDummyWatch(GorillaTagger.Instance.offlineVRRig);
+                watch.SetImageVisibility(false);
+                WatchActive = true;
             }
-        }
-
-        void RoomLeft(object sender, Events.RoomJoinedArgs e)
-        {
-            InHunt = false;
         }
 
         void Update()
         {
-            if (WatchManagement.WatchActive)
+            if (WatchActive)
             {
                 playTime = DateTime.Now - Process.GetCurrentProcess().StartTime;
 
-                WatchManagement.SetWatchText
-                    ($"{DateTime.Now:h:mm tt}\n\n" + // make the text readable for now while i figure out the stupid ass secret thing
+                watch.SetWatchText
+                    ($"{DateTime.Now:h:mm tt}\n" +
                     $"PLAYTIME:\n" +
                     $"{new TimeSpanRounder.RoundedTimeSpan(playTime.Ticks, 0):hh:mm:ss}");
             }

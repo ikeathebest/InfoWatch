@@ -17,15 +17,8 @@ namespace InfoWatch
 
         void Start()
         {
-            Utilla.Events.GameInitialized += OnGameInitialized;
             Utilla.Events.RoomJoined += RoomJoined;
             Utilla.Events.RoomLeft += RoomLeft;
-        }
-
-        async void OnGameInitialized(object sender, EventArgs e)
-        {
-            await Task.Delay(10000); // wild
-            WatchManagement.InitWatch();
         }
 
         void RoomJoined(object sender, Events.RoomJoinedArgs e)

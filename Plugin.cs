@@ -1,11 +1,17 @@
 ﻿using BepInEx;
 using System;
-using UnityEngine;
 using Utilla;
 using InfoWatch.Scripts;
 using System.Diagnostics;
 using DevGorillaLib.Utils;
 using DevGorillaLib.Objects;
+using Photon.Pun;
+using UnityEngine;
+using Photon.Voice.Unity;
+using GorillaNetworking;
+using System.IO;
+using System.Reflection;
+using BepInEx.Configuration;
 
 namespace InfoWatch
 {
@@ -16,38 +22,105 @@ namespace InfoWatch
         TimeSpan playTime;
         bool WatchActive;
         DummyWatch watch;
+        string TempText;
 
-        void Start()
+        Recorder VoiceRecorder;
+        Texture2D SpeakerTex;
+        Sprite SpeakerSprite;
+
+        ConfigEntry<bool> TwentyFourHr;
+
+        async void Start()
         {
+            // sprite and texture
+            // Transparency doesn't work. Maybe its cuz the original icons never had any?
+            // For now an identical green background on the loaded png will do
+            Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream($"InfoWatch.Resources.speaker.png");
+            byte[] bytes = new byte[str.Length];
+            await str.ReadAsync(bytes, 0, bytes.Length);
+            SpeakerTex = new Texture2D(512, 512, TextureFormat.RGBA32, false)
+            {
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Point,
+                name = "speaker"
+            };
+            SpeakerTex.LoadImage(bytes);
+            SpeakerTex.Apply();
+            SpeakerSprite = Sprite.Create(SpeakerTex, new Rect(0, 0, 512, 512), Vector2.zero);
+
+            // config
+            ConfigFile customFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "InfoWatch.cfg"), true);
+            TwentyFourHr = customFile.Bind("Time", "24-Hour Time", false, "Use 24-hour time instead of 12.");
+
             Utilla.Events.RoomJoined += RoomJoined;
+            Utilla.Events.GameInitialized += Init;
         }
 
-        async void RoomJoined(object sender, Events.RoomJoinedArgs e)
+        void RoomJoined(object sender, Events.RoomJoinedArgs e)
         {
-            if (e.Gamemode.Contains("HUNT") && WatchActive)
-            {
-                WatchUtils.RemoveDummyWatch(GorillaTagger.Instance.offlineVRRig);
-                WatchActive = false;
-            }
-            else if (!WatchActive)
-            {
-                watch = await WatchUtils.CreateDummyWatch(GorillaTagger.Instance.offlineVRRig);
-                watch.SetImageVisibility(false);
-                WatchActive = true;
-            }
+            VoiceRecorder = PhotonNetworkController.Instance.GetComponent<Recorder>();
+            if (e.Gamemode.Contains("HUNT") && WatchActive) { WatchDestroy(); }
+            else if (!WatchActive) { WatchCreate(); }
         }
+
+        void Init(object sender, EventArgs e) { WatchCreate(); }
 
         void Update()
         {
             if (WatchActive)
             {
                 playTime = DateTime.Now - Process.GetCurrentProcess().StartTime;
+                if (TwentyFourHr.Value)
+                {
+                    TempText =
+                        $"{DateTime.Now:H:mm}\n" +
+                        $"SESSION:{new TimeSpanRounder.RoundedTimeSpan(playTime.Ticks, 0).ToString().Substring(0, 5)}";
+                }
+                else
+                {
+                    TempText =
+                        $"{DateTime.Now:h:mmtt}\n" +
+                        $"SESSION:{new TimeSpanRounder.RoundedTimeSpan(playTime.Ticks, 0).ToString().Substring(0, 5)}";
+                }
 
-                watch.SetWatchText
-                    ($"{DateTime.Now:h:mm tt}\n" +
-                    $"PLAYTIME:\n" +
-                    $"{new TimeSpanRounder.RoundedTimeSpan(playTime.Ticks, 0):hh:mm:ss}");
+                
+                if (PhotonNetwork.InRoom)
+                {
+                    if (GorillaGameManager.instance is GorillaTagManager tag && tag.currentInfected.Count > 0)
+                    {
+                        TempText += $"\n{tag.currentInfected.Count}/{PhotonNetwork.PlayerList.Length} TAGGED";
+                    }
+                    else
+                    {
+                        TempText += $"\n{PhotonNetwork.PlayerList.Length} PLAYERS";
+                    }
+
+                    if (VoiceRecorder != null && VoiceRecorder.IsCurrentlyTransmitting) { watch.SetImage(SpeakerSprite, ref watch.material); }
+                    else { watch.SetImage(null, ref watch.material); }
+
+                }
+                watch.SetWatchText(TempText);
             }
+        }
+
+        async void WatchCreate()
+        {
+            watch = await WatchUtils.CreateDummyWatch(GorillaTagger.Instance.offlineVRRig);
+            // there isn't anything to turn the objects off independently
+            // and we need the mat image later
+            watch.SetImage(null, ref watch.material);
+            watch.SetImage(null, ref watch.badge);
+            watch.SetImage(null, ref watch.face);
+            watch.SetImage(null, ref watch.leftHand);
+            watch.SetImage(null, ref watch.rightHand);
+            watch.SetImage(null, ref watch.hat);
+            WatchActive = true;
+        }
+
+        void WatchDestroy()
+        {
+            WatchUtils.RemoveDummyWatch(GorillaTagger.Instance.offlineVRRig);
+            WatchActive = false;
         }
     }
 }

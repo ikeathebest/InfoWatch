@@ -106,7 +106,7 @@ namespace InfoWatch
         {
             watch = await WatchUtils.CreateDummyWatch(GorillaTagger.Instance.offlineVRRig);
             // there isn't anything to turn the objects off independently
-            // and we need the mat image later
+            // and we need the hat image later
             watch.SetImage(null, ref watch.material);
             watch.SetImage(null, ref watch.badge);
             watch.SetImage(null, ref watch.face);

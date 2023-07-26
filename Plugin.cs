@@ -100,7 +100,6 @@ namespace InfoWatch
                     // hat is close enough so whatever lol
                     if (VoiceRecorder != null && VoiceRecorder.IsCurrentlyTransmitting) { watch.SetImage(SpeakerSprite, ref watch.hat); }
                     else { watch.SetImage(null, ref watch.hat); }
-
                 }
                 watch.SetWatchText(TempText);
             }

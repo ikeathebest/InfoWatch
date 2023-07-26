@@ -33,6 +33,10 @@ namespace InfoWatch
         async void Start()
         {
             // sprite and texture
+            
+            // the speaker icon in gorilla tag is actually
+            // just an example photon voice icon to this day
+            // so we can use it freely
             Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("InfoWatch.Resources.speaker.png");
             byte[] bytes = new byte[str.Length];
             await str.ReadAsync(bytes, 0, bytes.Length);

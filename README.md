@@ -3,7 +3,7 @@ Informative watch using DevGorillaLib's watch utils
 
 ## Features
 - Clock
- - 12 or 24 hour mode
+  - 12 or 24 hour mode
 - Session playtime
 - Integration with Infection mode
 - Player count

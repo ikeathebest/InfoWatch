@@ -33,12 +33,10 @@ namespace InfoWatch
         async void Start()
         {
             // sprite and texture
-            // Transparency doesn't work. Maybe its cuz the original icons never had any?
-            // For now an identical green background on the loaded png will do
-            Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream($"InfoWatch.Resources.speaker.png");
+            Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream("InfoWatch.Resources.speaker.png");
             byte[] bytes = new byte[str.Length];
             await str.ReadAsync(bytes, 0, bytes.Length);
-            SpeakerTex = new Texture2D(512, 512, TextureFormat.RGBA32, false)
+            SpeakerTex = new Texture2D(512, 512, TextureFormat.RGBA32, true)
             {
                 wrapMode = TextureWrapMode.Repeat,
                 filterMode = FilterMode.Point,
@@ -94,9 +92,10 @@ namespace InfoWatch
                     {
                         TempText += $"\n{PhotonNetwork.PlayerList.Length} PLAYERS";
                     }
-
-                    if (VoiceRecorder != null && VoiceRecorder.IsCurrentlyTransmitting) { watch.SetImage(SpeakerSprite, ref watch.material); }
-                    else { watch.SetImage(null, ref watch.material); }
+                    // transparency doesnt work on the material slot because its handled differently
+                    // hat is close enough so whatever lol
+                    if (VoiceRecorder != null && VoiceRecorder.IsCurrentlyTransmitting) { watch.SetImage(SpeakerSprite, ref watch.hat); }
+                    else { watch.SetImage(null, ref watch.hat); }
 
                 }
                 watch.SetWatchText(TempText);

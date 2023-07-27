@@ -38,7 +38,7 @@
       <HintPath>$(GameAssemblyPath)\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="DevGorillaLib">
-      <HintPath>..\..\..\..\..\games\Oculus\Software\another-axiom-gorilla-tag\BepInEx\plugins\DevGorillaLib.dll</HintPath>
+      <HintPath>..\..\..\..\..\games\Oculus\Software\another-axiom-gorilla-tag\BepInEx\plugins\DevGorillaLib\DevGorillaLib.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
       <HintPath>$(GameAssemblyPath)\Mono.Security.dll</HintPath>

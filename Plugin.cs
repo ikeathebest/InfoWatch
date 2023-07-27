@@ -98,8 +98,8 @@ namespace InfoWatch
                     }
                     // transparency doesnt work on the material slot because its handled differently
                     // hat is close enough so whatever lol
-                    if (VoiceRecorder != null && VoiceRecorder.IsCurrentlyTransmitting) { watch.SetImage(SpeakerSprite, ref watch.hat); }
-                    else { watch.SetImage(null, ref watch.hat); }
+                    if (VoiceRecorder != null && VoiceRecorder.IsCurrentlyTransmitting) { watch.SetImage(SpeakerSprite, DummyWatch.ImageType.Hat); }
+                    else { watch.SetImage(null, DummyWatch.ImageType.Hat); }
                 }
                 watch.SetWatchText(TempText);
             }
@@ -107,21 +107,22 @@ namespace InfoWatch
 
         async void WatchCreate()
         {
-            watch = await WatchUtils.CreateDummyWatch(GorillaTagger.Instance.offlineVRRig);
+            watch = await DummyWatch.CreateDummyWatch(Assembly.GetExecutingAssembly(), GorillaTagger.Instance.offlineVRRig);
             // there isn't anything to turn the objects off independently
             // and we need the hat image later
-            watch.SetImage(null, ref watch.material);
-            watch.SetImage(null, ref watch.badge);
-            watch.SetImage(null, ref watch.face);
-            watch.SetImage(null, ref watch.leftHand);
-            watch.SetImage(null, ref watch.rightHand);
-            watch.SetImage(null, ref watch.hat);
+            watch.SetImage(null, DummyWatch.ImageType.Hat);
+            watch.SetImage(null, DummyWatch.ImageType.Badge);
+            watch.SetImage(null, DummyWatch.ImageType.Face);
+            watch.SetImage(null, DummyWatch.ImageType.LeftHand);
+            watch.SetImage(null, DummyWatch.ImageType.RightHand);
+            // material swatches are handled differently now
+            watch.SetColourSwatch(Color.clear);
             WatchActive = true;
         }
 
         void WatchDestroy()
         {
-            WatchUtils.RemoveDummyWatch(GorillaTagger.Instance.offlineVRRig);
+            DummyWatch.RemoveDummyWatch(Assembly.GetExecutingAssembly(), GorillaTagger.Instance.offlineVRRig);
             WatchActive = false;
         }
     }

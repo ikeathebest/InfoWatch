@@ -38,6 +38,8 @@ namespace InfoWatch
 
         async void Start()
         {
+            // TODO: Use an assetbundle. This is a metric fuckton of code for 5 sprites
+            
             // streams
             Stream speakerstr = Assembly.GetExecutingAssembly().GetManifestResourceStream("InfoWatch.Resources.speaker.png");
             Stream pingbar1 = Assembly.GetExecutingAssembly().GetManifestResourceStream("InfoWatch.Resources.pingbar1.png");

@@ -5,10 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\pingbar1.png" />
+    <None Remove="Resources\pingbar2.png" />
+    <None Remove="Resources\pingbar3.png" />
+    <None Remove="Resources\pingbar4.png" />
     <None Remove="Resources\speaker.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\pingbar1.png" />
+    <EmbeddedResource Include="Resources\pingbar2.png" />
+    <EmbeddedResource Include="Resources\pingbar3.png" />
+    <EmbeddedResource Include="Resources\pingbar4.png" />
     <EmbeddedResource Include="Resources\speaker.png" />
   </ItemGroup>
 
